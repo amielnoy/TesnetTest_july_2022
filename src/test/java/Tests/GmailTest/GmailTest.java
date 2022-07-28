@@ -1,26 +1,153 @@
-package Tests;
+package Tests.GmailTest;
 
-import Utils.AllureUtils;
 import Utils.Email.EmailUtils;
 import Utils.PropertiesUtil;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.IMAPStore;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.mail.*;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.search.FlagTerm;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Properties;
 
-import static com.github.dockerjava.api.model.PortConfig.PublishMode.host;
 import static io.qameta.allure.Allure.step;
 
 public class GmailTest {
+    /**
+     * Test downloading e-mail messages
+     */
+    //@Test
+    public void readMail() {
+        // for POP3
+        //String protocol = "pop3";
+        //String host = "pop.gmail.com";
+        //String port = "995";
+
+        // for IMAP
+        String protocol = "imap";
+        String host = "imap.gmail.com";
+        String port = "993";
+
+
+        String userName = "amiel.noyfeld@gmail.com";
+        String password = "ixuebaayghditgfc";
+
+        ImapAndPop3ReadMailUtil currentImapAndPop3ReadMailUtil=new ImapAndPop3ReadMailUtil();
+        currentImapAndPop3ReadMailUtil.downloadEmails(protocol, host, port, userName, password);
+    }
+    //@Test
+    public void readMailPop3() {
+        try {
+            String password = "ixuebaayghditgfc";
+            String host = "imap.gmail.com";
+            String user = "amiel.noyfeld@gmail.com";
+            //create properties field
+            // create properties
+            Properties properties = new Properties();
+            properties.put("mail.debug", "true");
+            properties.put("mail.store.protocol", "imap");
+            properties.put("mail.imap.host", "imap.gmail.com");
+            properties.put("mail.imap.port", "993");
+            properties.put("mail.imap.timeout", "10000");
+
+            Session session = Session.getDefaultInstance(properties,
+                    new javax.mail.Authenticator(){
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(
+                                    user, password);// Specify the Username and the PassWord
+                        }
+                    });
+            IMAPStore store ;
+            Folder inbox ;
+
+            try {
+                store = (IMAPStore) session.getStore("imaps");
+                store.connect(host,user, password);
+
+                inbox = (IMAPFolder) store.getFolder("INBOX");
+
+            } catch (NoSuchProviderException e) {
+                throw new RuntimeException(e);
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }catch (Exception e){
+        e.printStackTrace();}
+    }
+
     @Test
+    public void sendMailSmtpPort587() throws Exception {
+        String m_subject = "My Subject Smtp port 587 mail",
+                m_text = "This message is from Indoor Positioning App. Required file(s) are attached.";
+
+        String username = "amiel.noyfeld@gmail.com";
+        String d_host = "smtp.gmail.com";
+        String password1 = "a1m2i3!@";
+        String password2 = "buvwfarcqrubwidn";
+        String d_port = "587";
+        String recipients = "amiel.noyfeld@gmail.com";
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", true);
+        props.put("mail.smtp.starttls.enable", true);
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        props.put("mail.smtp.ssl.protocols","TLSv1.2");
+        Session session = Session.getInstance(props,
+                new javax.mail.Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password2);
+                    }
+                }
+        );
+
+        session.setDebug(true);
+//        Store store =
+//                session.getStore(new URLName("imap://amiel.noyfeld@gmail.com:"+password+"@smtp.gmail.com:"
+//                        + 143 + "/INBOX"));
+        Store store = session.getStore("pop3s");//"pop3s"
+        store.connect();
+        Folder inbox = store.getFolder("INBOX"); //actually i need "SENT"
+        if (inbox == null) {
+           System.out.println("No INBOX");
+            System.exit(1);
+        }
+       inbox.open(Folder.READ_ONLY);
+
+        Message[] messages = inbox.getMessages();
+        for (int i = 0; i < messages.length; i++) {
+            System.out.println("Message " + (i + 1));
+            messages[i].writeTo(System.out);
+        }
+        inbox.close(false);
+        store.close();
+
+
+        MimeMessage msg = new MimeMessage(session);
+        try {
+            msg.setSubject(m_subject);
+            msg.setFrom(new InternetAddress(username));
+            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(username));
+
+            Transport transport = session.getTransport("smtp");
+            transport.connect(d_host, Integer.valueOf(d_port), username, password2);
+
+            //transport.sendMessage(msg, msg.getAllRecipients());
+            //transport.close();
+
+        } catch (AddressException e) {
+            e.printStackTrace();
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+
+        }
+    }
+    //@Test
     public void TestSendMailMessage(){
         Properties props = new Properties();
 
@@ -30,8 +157,8 @@ public class GmailTest {
         props.put("mail.to", "amiel.noyfeld@gmail.com");
         props.put("mail.password", "a1m2i3s4");
         props.put("mail.smtp.auth", "true");
-        //props.setProperty("mail.smtp.ssl.enable", "true");
-        props.put("mail.smtp.starttls.enable", "true");
+        props.setProperty("mail.smtp.ssl.enable", "true");
+        //props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.ssl.trust", "*");
         Session session = Session.getInstance(props, null);
         SmtpAuthenticator authentication = new SmtpAuthenticator();

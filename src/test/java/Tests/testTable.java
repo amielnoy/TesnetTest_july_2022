@@ -18,7 +18,7 @@ public class testTable extends BaseMethod {
 
 
 
-    //@Test(dataProvider = "textFileNameAsMethodName",dataProviderClass= textFileProvider.class)
+    @Test(dataProvider = "textFileNameAsMethodName",dataProviderClass= textFileProvider.class)
     @Description("test that string values exist in the table")
     public void testTableElementsText(String tableColumnName,String valueToSearchInColumn,String expectedTableCellValue) {
         HashMap searchedColumnNameToIndexMap =new HashMap<String, Integer>();

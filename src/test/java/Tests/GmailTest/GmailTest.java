@@ -50,7 +50,7 @@ public class GmailTest {
             Properties properties = new Properties();
             properties.put("mail.debug", "true");
             properties.put("mail.store.protocol", "imap");
-            properties.put("mail.imap.host", "imap.gmail.com");
+            properties.put("mail.imap.host", host);
             properties.put("mail.imap.port", "993");
             properties.put("mail.imap.timeout", "10000");
 
@@ -69,7 +69,13 @@ public class GmailTest {
                 store.connect(host,user, password);
 
                 inbox = (IMAPFolder) store.getFolder("INBOX");
-
+                Message[] messages = inbox.getMessages();
+                for (int i = 0; i < messages.length; i++) {
+                    System.out.println("Message " + (i + 1));
+                    messages[i].writeTo(System.out);
+                }
+                inbox.close(false);
+                store.close();
             } catch (NoSuchProviderException e) {
                 throw new RuntimeException(e);
             } catch (MessagingException e) {

@@ -39,6 +39,7 @@ public class testTable extends BaseMethod {
                     valueToSearchInColumn,
                     intExpectedColumnIndex,
                     expectedTableCellValue);
+
             Assert.assertEquals(actualCellValue.length(),expectedTableCellValue.length(),"Error lenghs are not the same");
             Assert.assertEquals(actualCellValue,expectedTableCellValue,"actualCellValue="+actualCellValue+"<>expectedTableCellValue="+expectedTableCellValue);
         }

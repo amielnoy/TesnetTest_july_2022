@@ -55,14 +55,14 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-configuration2
     implementation 'org.apache.commons:commons-configuration2:2.7'
 }
-//def allureVersion="2.18.1"
-//allure {
-//    //autoconfigure = true
-//    aspectjweaver = true
-//    version = allureVersion
-//    configuration = "testImplementation"
-//    clean = true
-
+def allureVersion="2.18.1"
+allure {
+    //autoconfigure = true
+    aspectjweaver = true
+    version = allureVersion
+    configuration = "testImplementation"
+    clean = true
+}
 
 //    useTestNG {
 //        version = allureVersion
